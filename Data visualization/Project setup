@@ -1,5 +1,6 @@
- Visualize Data using Amazon QuickSight
- Created visualizations from a large dataset using Amazon S3 and Amazon Quicksight. Working with a dataset of 50,000 best-selling products on Amazon.com.
+ ## Visualize Data using Amazon QuickSight
+ 
+Created visualizations from a large dataset using Amazon S3 and Amazon Quicksight. Working with a dataset of 50,000 best-selling products on Amazon.com.
 
 Step 1: Download the Dataset
  Download the "Amazon Bestseller Dataset" CSV file and the "manifest.json" file from bright data for data source.
