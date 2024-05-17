@@ -19,7 +19,7 @@ Step 2: Set Up Amazon S3 Bucket
                            "Effect": "Allow",
                            "Principal": "*",
                            "Action": "s3:*",
-                           "Resource": "arn:aws:s3:::?????"
+                           "Resource": "arn:aws:s3:::<bucket-name>/*"
                          }
                           ]
               }
