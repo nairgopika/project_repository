@@ -1,6 +1,10 @@
+
+
 AWS VPC Setup and Peering Configuration
 
 This guide walks you through the process of setting up Virtual Private Clouds (VPCs), creating subnets, configuring VPC peering, updating route tables, security groups, and verifying connectivity between instances in separate VPCs.
+
+![Diagram](https://github.com/user-attachments/assets/38bee6a4-cc1f-464d-98c4-ba0ed54a44f6)
 
 Prerequisites
 An AWS account with sufficient permissions to create VPCs, subnets, security groups, and EC2 instances.
@@ -93,6 +97,9 @@ Launch another EC2 instance in a subnet of VPC 2.
 SSH into the instance in VPC 1.
 Attempt to ping the private IP address of the instance in VPC 2.
 Ensure the security group rules allow ICMP traffic (for ping) or the specific type of traffic you are testing.
+![peer1](https://github.com/user-attachments/assets/6698744d-c328-43d5-b7ef-7cd274c3a227)
+![peer2](https://github.com/user-attachments/assets/bbdaed51-dad7-489e-9542-da6e27c42f2f)
+
 
 Conclusion
 By following these steps, you have successfully set up two VPCs, configured peering between them, and ensured connectivity between instances in each VPC. This setup is foundational for building more complex multi-VPC architectures.
