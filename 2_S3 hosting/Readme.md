@@ -10,7 +10,8 @@ Step 2: Set Up Amazon S3 Bucket
     In the "Properties" section, enable "Static website hosting."
     Upload your website files to the bucket.
     In the "Permissions" section update the policy
-          Bucket policy:
+         
+	  Bucket policy:
               {
                     "Version": "2012-10-17",
                           "Statement": [
