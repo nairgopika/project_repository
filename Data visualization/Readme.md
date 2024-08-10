@@ -1,4 +1,4 @@
- ## Visualize Data using Amazon QuickSight
+  Visualize Data using Amazon QuickSight
  
 Created visualizations from a large dataset using Amazon S3 and Amazon Quicksight. Working with a dataset of 50,000 best-selling products on Amazon.com.
 
