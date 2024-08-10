@@ -106,7 +106,3 @@ The line should finally look like this:
 upload the entire folder contents (not the folder) to the s3 bucket.
 enable the Static site hosting option  - set the index to index.html file 
 Now access the application using the static website url and try to add the employee details.
-
-
-
-
