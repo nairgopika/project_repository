@@ -1,6 +1,4 @@
-
-
-AWS VPC Setup and Peering Configuration
+#AWS VPC Setup and Peering Configuration
 
 This guide walks you through the process of setting up Virtual Private Clouds (VPCs), creating subnets, configuring VPC peering, updating route tables, security groups, and verifying connectivity between instances in separate VPCs.
 
