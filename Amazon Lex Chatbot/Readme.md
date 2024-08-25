@@ -5,7 +5,9 @@ BankerBot is a conversational AI chatbot built using Amazon Lex and AWS Lambda. 
 
 Services used:
 AWS Lex
+
 AWS Lambda
+
 AWS CloudFormation
 
 Setup Instructions
