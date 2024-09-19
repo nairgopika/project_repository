@@ -1,0 +1,145 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template to set up two VPCs, subnets, VPC peering, and security groups.
+
+Resources:
+  # VPC 1
+  VPC1:
+    Type: 'AWS::EC2::VPC'
+    Properties: 
+      CidrBlock: 10.0.0.0/16
+      Tags: 
+        - Key: Name
+          Value: VPC-1
+
+  # VPC 2
+  VPC2:
+    Type: 'AWS::EC2::VPC'
+    Properties: 
+      CidrBlock: 192.162.0.0/16
+      Tags: 
+        - Key: Name
+          Value: VPC-2
+
+  # Subnet in VPC 1
+  Subnet1:
+    Type: 'AWS::EC2::Subnet'
+    Properties: 
+      VpcId: !Ref VPC1
+      CidrBlock: 10.0.1.0/24
+      AvailabilityZone: !Select 
+        - 0
+        - !GetAZs ''
+      Tags:
+        - Key: Name
+          Value: Subnet-1
+
+  # Subnet in VPC 2
+  Subnet2:
+    Type: 'AWS::EC2::Subnet'
+    Properties: 
+      VpcId: !Ref VPC2
+      CidrBlock: 192.162.1.0/24
+      AvailabilityZone: !Select 
+        - 0
+        - !GetAZs ''
+      Tags:
+        - Key: Name
+          Value: Subnet-2
+
+  # VPC Peering Connection
+  VPCPeeringConnection:
+    Type: 'AWS::EC2::VPCPeeringConnection'
+    Properties:
+      VpcId: !Ref VPC1
+      PeerVpcId: !Ref VPC2
+      PeerOwnerId: !Ref 'AWS::AccountId'
+      Tags:
+        - Key: Name
+          Value: VPC-1-to-VPC-2-Peering
+
+  # Route Table for VPC 1
+  RouteTableVPC1:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC1
+      Tags:
+        - Key: Name
+          Value: VPC1-RouteTable
+
+  # Route in VPC 1 to VPC 2
+  RouteVPC1ToVPC2:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCPeeringConnection
+    Properties:
+      RouteTableId: !Ref RouteTableVPC1
+      DestinationCidrBlock: 192.162.0.0/16
+      VpcPeeringConnectionId: !Ref VPCPeeringConnection
+
+  # Route Table Association for VPC 1
+  RouteTableAssociationVPC1:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref Subnet1
+      RouteTableId: !Ref RouteTableVPC1
+
+  # Route Table for VPC 2
+  RouteTableVPC2:
+    Type: 'AWS::EC2::RouteTable'
+    Properties:
+      VpcId: !Ref VPC2
+      Tags:
+        - Key: Name
+          Value: VPC2-RouteTable
+
+  # Route in VPC 2 to VPC 1
+  RouteVPC2ToVPC1:
+    Type: 'AWS::EC2::Route'
+    DependsOn: VPCPeeringConnection
+    Properties:
+      RouteTableId: !Ref RouteTableVPC2
+      DestinationCidrBlock: 10.0.0.0/16
+      VpcPeeringConnectionId: !Ref VPCPeeringConnection
+
+  # Route Table Association for VPC 2
+  RouteTableAssociationVPC2:
+    Type: 'AWS::EC2::SubnetRouteTableAssociation'
+    Properties:
+      SubnetId: !Ref Subnet2
+      RouteTableId: !Ref RouteTableVPC2
+
+  # Security Group for VPC 1
+  SecurityGroupVPC1:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security group for VPC 1
+      VpcId: !Ref VPC1
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 192.162.0.0/16
+
+  # Security Group for VPC 2
+  SecurityGroupVPC2:
+    Type: 'AWS::EC2::SecurityGroup'
+    Properties:
+      GroupDescription: Security group for VPC 2
+      VpcId: !Ref VPC2
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 80
+          ToPort: 80
+          CidrIp: 10.0.0.0/16
+
+Outputs:
+  VPC1ID:
+    Description: VPC 1 ID
+    Value: !Ref VPC1
+
+  VPC2ID:
+    Description: VPC 2 ID
+    Value: !Ref VPC2
+
+  PeeringConnectionID:
+    Description: VPC Peering Connection ID
+    Value: !Ref VPCPeeringConnection
