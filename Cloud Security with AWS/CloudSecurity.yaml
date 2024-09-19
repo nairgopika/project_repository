@@ -1,5 +1,4 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: CloudFormation template for AWS IAM policies to enforce cloud security across EC2 instances in Production and Development environments.
 
 Resources:
   # Create the IAM Policy for EC2 permissions
