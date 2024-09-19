@@ -1,0 +1,141 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: CloudFormation template for AWS IAM policies to enforce cloud security across EC2 instances in Production and Development environments.
+
+Resources:
+  # Create the IAM Policy for EC2 permissions
+  CloudSecurityIAMPolicy:
+    Type: "AWS::IAM::Policy"
+    Properties:
+      PolicyName: "CloudSecurityIAMPolicy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          # Allow full access to EC2 resources tagged with "Production"
+          - Effect: "Allow"
+            Action: "ec2:*"
+            Resource: "*"
+            Condition:
+              StringEquals:
+                "ec2:ResourceTag/Environment": "Production"
+                
+          # Allow Describe actions for EC2 resources
+          - Effect: "Allow"
+            Action: "ec2:Describe*"
+            Resource: "*"
+
+          # Deny changing state (start/stop/terminate) for EC2 instances tagged with "Development"
+          - Effect: "Deny"
+            Action:
+              - "ec2:StartInstances"
+              - "ec2:StopInstances"
+              - "ec2:TerminateInstances"
+            Resource: "*"
+            Condition:
+              StringEquals:
+                "ec2:ResourceTag/Environment": "Development"
+              
+          # Deny creating or deleting tags
+          - Effect: "Deny"
+            Action:
+              - "ec2:CreateTags"
+              - "ec2:DeleteTags"
+            Resource: "*"
+
+      Roles:
+        - Ref: EC2AdminRole
+
+  # Create IAM role for EC2 admin users
+  EC2AdminRole:
+    Type: "AWS::IAM::Role"
+    Properties:
+      RoleName: "EC2AdminRole"
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "ec2.amazonaws.com"
+            Action: "sts:AssumeRole"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess
+      Path: "/"
+
+  # Create Production EC2 instance
+  ProductionEC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: "t2.micro"
+      ImageId: "ami-0c55b159cbfafe1f0" # Replace with the AMI ID in your region
+      Tags:
+        - Key: "Environment"
+          Value: "Production"
+      SecurityGroups:
+        - Ref: EC2SecurityGroup
+
+  # Create Development EC2 instance
+  DevelopmentEC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: "t2.micro"
+      ImageId: "ami-0c55b159cbfafe1f0" # Replace with the AMI ID in your region
+      Tags:
+        - Key: "Environment"
+          Value: "Development"
+      SecurityGroups:
+        - Ref: EC2SecurityGroup
+
+  # Security group for EC2 instances
+  EC2SecurityGroup:
+    Type: "AWS::EC2::SecurityGroup"
+    Properties:
+      GroupDescription: "Allow SSH access to EC2 instances"
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: 22
+          ToPort: 22
+          CidrIp: "0.0.0.0/0" # You may want to restrict this for security
+
+  # Create IAM User Group
+  IAMUserGroup:
+    Type: "AWS::IAM::Group"
+    Properties:
+      GroupName: "EC2AdminGroup"
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AmazonEC2FullAccess"
+
+  # Attach the custom IAM Policy to the User Group
+  AttachPolicyToGroup:
+    Type: "AWS::IAM::GroupPolicy"
+    Properties:
+      GroupName: 
+        Ref: IAMUserGroup
+      PolicyName: "CloudSecurityIAMPolicy"
+      PolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Action: "ec2:*"
+            Resource: "*"
+            Condition:
+              StringEquals:
+                "ec2:ResourceTag/Environment": "Production"
+          - Effect: "Deny"
+            Action: 
+              - "ec2:StartInstances"
+              - "ec2:StopInstances"
+              - "ec2:TerminateInstances"
+            Resource: "*"
+            Condition:
+              StringEquals:
+                "ec2:ResourceTag/Environment": "Development"
+
+Outputs:
+  ProductionEC2InstanceId:
+    Description: "The ID of the Production EC2 Instance"
+    Value: 
+      Ref: ProductionEC2Instance
+
+  DevelopmentEC2InstanceId:
+    Description: "The ID of the Development EC2 Instance"
+    Value: 
+      Ref: DevelopmentEC2Instance
